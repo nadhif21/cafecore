@@ -79,6 +79,7 @@
             </div>
         @endif
     </main>
+    <a href="" class="ml-[120px] bg-[#FDD100] rounded text-white p-2  hover:bg-[#333333] hover:text-[#FDD100] transition">Bayar Sekarang</a>
 
 </body>
 </html>

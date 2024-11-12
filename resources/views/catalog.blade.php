@@ -8,20 +8,19 @@
     <link rel="icon" type="image/png" href="../assets/img/logo.jpeg">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        /* Custom Scrollbar Styles */
         .overflow-x-scroll::-webkit-scrollbar {
-            height: 8px; /* Height of the scrollbar */
+            height: 8px;
         }
         .overflow-x-scroll::-webkit-scrollbar-thumb {
-            background: #FDD100; /* Color of the scrollbar handle */
-            border-radius: 10px; /* Rounded corners for the scrollbar handle */
+            background: #FDD100;
+            border-radius: 10px; 
         }
         .overflow-x-scroll::-webkit-scrollbar-track {
-            background: #e0e0e0; /* Color of the scrollbar track */
-            border-radius: 10px; /* Rounded corners for the scrollbar track */
+            background: #e0e0e0;
+            border-radius: 10px;
         }
         .overflow-x-scroll::-webkit-scrollbar-thumb:hover {
-            background: #FFC107; /* Darker color on hover */
+            background: #FFC107;
         }
     </style>
 </head>

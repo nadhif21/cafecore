@@ -34,7 +34,7 @@
                     <span class="text-gray-800">Ruang untuk <br> Bersantai, </span> 
                     <span class="text-[#FDD100]"> Rasa <br> untuk Dinikmati</span>
                 </h1>
-                <a href="{{ route('login') }}" class="mt-3 text-xs text-white p-2 bg-[#FDD100] w-[90px] rounded-full transition duration-300 transform hover:scale-110">Get Started!</a>
+                <a href="{{ route('login') }}" class="mt-3 text-xs text-white p-2 bg-[#FDD100] w-[90px] rounded-full hover:scale-105 hover:shadow-xl">Get Started!</a>
             </div>
             <div>
                 <img src="../assets/img/image1.png" alt="Descriptive Alt Text" class="w-[300px] h-auto">
