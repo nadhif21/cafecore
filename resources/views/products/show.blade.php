@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4 font-semibold">
-                    <a href="{{ route('catalog') }}" class="text-gray-700 hover:text-[#FDD100]">
+                    <a href="{{ route('user.catalog') }}" class="text-gray-700 hover:text-[#FDD100]">
                         &larr; Kembali ke Katalog
                     </a>
                 </div>

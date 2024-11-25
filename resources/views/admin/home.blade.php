@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,8 +35,8 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4 font-semibold">
-                    <a href="{{ route('cart.index') }}" class="text-gray-700 hover:text-[#FDD100]">
-                        Keranjang
+                    <a href="{{ route('upload') }}" class="text-gray-700 hover:text-[#FDD100]">
+                        Upload
                     </a>
                     <div class="rounded-sm">
                         <form method="POST" action="{{ route('logout') }}" class="mt-1">

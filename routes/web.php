@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AuthController;
 
 
 /*
@@ -17,37 +18,60 @@ use App\Http\Controllers\CartController;
 |
 */
 
+// Halaman welcome
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/upload', function () {
-    return view('upload');
-})->middleware(['auth', 'verified'])->name('upload');
+// Auth routes
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+// Rute untuk user
+Route::middleware(['auth', 'role:user'])->group(function () {
+    // Catalog untuk user
+    Route::get('/user/catalog', [ProductController::class, 'index'])->name('user.catalog');
+    Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+    Route::post('/products/{id}/add-to-cart', [ProductController::class, 'addToCart'])->name('products.addToCart');
 
-Route::get('/catalog', [ProductController::class, 'index'])->middleware(['auth', 'verified'])->name('catalog');
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
-Route::post('/products/{id}/add-to-cart', [ProductController::class, 'addToCart'])->name('products.addToCart');
-
-
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-
-Route::middleware(['auth'])->group(function () {
+    // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.remove');
     Route::post('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
     Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
 });
 
+// Rute untuk admin
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/home', [ProductController::class, 'index'])->name('admin.home');
+    Route::get('/admin/upload', function () {
+        return view('admin/upload');
+    })->middleware(['auth', 'role:admin'])->name('upload');
+    Route::get('/products/upload', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+}); 
+
+// Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+
+// Route::get('/catalog', [ProductController::class, 'index'])->middleware(['auth', 'verified'])->name('catalog');
+// Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+// Route::post('/products/{id}/add-to-cart', [ProductController::class, 'addToCart'])->name('products.addToCart');
 
 
 
-require __DIR__.'/auth.php';
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
+
+
+// Route::middleware(['auth'])->group(function () {
+    // Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    // Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.remove');
+    // Route::post('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
+    // Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
+// });

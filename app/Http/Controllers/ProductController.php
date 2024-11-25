@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth; 
 use App\Models\Cart;
 
 
@@ -42,13 +43,22 @@ class ProductController extends Controller
 
     // Menampilkan daftar produk
     public function index()
-    {
-        // Ambil semua produk dari database
-        $products = Product::all(); 
+{
+    // Ambil semua produk dari database
+    $products = Product::all(); 
 
-        // Kembalikan view dengan daftar produk
-        return view('catalog', compact('products'));
+    // Cek apakah user yang terautentikasi adalah user atau admin
+    if (Auth::user()->role === 'user') {
+        // Jika user, kembalikan ke view user.catalog
+        return view('user.catalog', compact('products'));
+    } elseif (Auth::user()->role === 'admin') {
+        // Jika admin, kembalikan ke view admin.home
+        return view('admin.home', compact('products'));
     }
+
+    // Jika tidak terdeteksi role, arahkan ke login (misalnya)
+    return redirect()->route('login');
+}
 
     public function store(Request $request)
     {
@@ -71,7 +81,7 @@ class ProductController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()->route('catalog')->with('success', 'Produk berhasil di-upload!');
+        return redirect()->route('user.catalog')->with('success', 'Produk berhasil di-upload!');
     }
 
     public function show($id)
