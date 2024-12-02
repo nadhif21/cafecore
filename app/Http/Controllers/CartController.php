@@ -56,4 +56,32 @@ class CartController extends Controller
 
         return redirect()->route('cart.index')->with('success', 'Jumlah item berhasil dikurangi.');
     }
+
+    public function checkout(Request $request)
+    {
+        // Update status semua cart items milik user menjadi 'pending'
+        $cartItems = Cart::where('user_id', auth()->id())->where('status', '!=', 'completed')->get();
+        
+        foreach ($cartItems as $item) {
+            $item->update(['status' => 'pending']);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Keranjang Anda telah diproses, menunggu konfirmasi admin.');
+    }
+
+    // Fungsi untuk admin mengkonfirmasi pembayaran
+    public function confirmPayment($id)
+    {
+        // Cek apakah user adalah admin (ini bisa disesuaikan dengan role atau permission)
+        if (auth()->user()->is_admin) {
+            $cartItem = Cart::findOrFail($id);
+
+            // Mengubah status menjadi 'completed'
+            $cartItem->update(['status' => 'completed']);
+
+            return redirect()->route('admin.orders.index')->with('success', 'Pembayaran telah dikonfirmasi.');
+        } else {
+            return redirect()->route('cart.index')->with('error', 'Anda tidak memiliki hak akses untuk mengonfirmasi pembayaran.');
+        }
+    }
 }

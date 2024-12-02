@@ -89,4 +89,67 @@ class ProductController extends Controller
     $product = Product::findOrFail($id); // Mengambil produk berdasarkan ID
     return view('products.show', compact('product')); // Mengirim data produk ke view
 }
+
+public function edit($id)
+{
+    // Cari produk berdasarkan ID
+    $product = Product::findOrFail($id);
+
+    // Tampilkan form edit
+    return view('admin.edit_product', compact('product'));
+}
+
+public function update(Request $request, $id)
+{
+    // Validasi input
+    $request->validate([
+        'name' => 'required',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Gambar bersifat opsional
+        'price' => 'required|numeric',
+        'description' => 'required|string',
+    ]);
+
+    // Cari produk berdasarkan ID
+    $product = Product::findOrFail($id);
+
+    // Jika ada file gambar baru yang diunggah
+    if ($request->hasFile('image')) {
+        // Hapus gambar lama jika ada
+        if ($product->image && Storage::exists('public/' . $product->image)) {
+            Storage::delete('public/' . $product->image);
+        }
+
+        // Simpan gambar baru
+        $path = $request->file('image')->store('images', 'public');
+        $product->image = $path;
+    }
+
+    // Perbarui data produk
+    $product->name = $request->name;
+    $product->price = $request->price;
+    $product->description = $request->description;
+
+    // Simpan perubahan
+    $product->save();
+
+    return redirect()->route('admin.home')->with('success', 'Produk berhasil diperbarui!');
+}
+
+public function destroy($id)
+{
+    // Cari produk berdasarkan ID
+    $product = Product::findOrFail($id);
+
+    // Hapus gambar jika ada
+    if ($product->image && Storage::exists('public/' . $product->image)) {
+        Storage::delete('public/' . $product->image);
+    }
+
+    // Hapus produk
+    $product->delete();
+
+    // Redirect dengan pesan sukses
+    return redirect()->route('admin.home')->with('success', 'Produk berhasil dihapus!');
+}
+
 }

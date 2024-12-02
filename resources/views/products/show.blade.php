@@ -14,9 +14,6 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <img src="../assets/img/logo.png" class="w-auto h-12">
-                    </div>
                 </div>
                 <div class="flex items-center space-x-4 font-semibold">
                     <a href="{{ route('user.catalog') }}" class="text-gray-700 hover:text-[#FDD100]">
@@ -31,7 +28,7 @@
     <main class="container mx-auto py-10 px-4">
         <div class="flex">
             <div class="w-1/2">
-                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-full h-auto rounded-lg shadow-md">
+                <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="w-60 h-auto rounded-lg shadow-md">
             </div>
             <div class="w-1/2 pl-8">
                 <h2 class="text-xl font-semibold text-gray-800">Detail Produk</h2>

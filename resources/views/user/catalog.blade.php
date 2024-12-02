@@ -25,7 +25,7 @@
         }
     </style>
 </head>
-@extends('layouts.navigation')
+@extends('layouts.usernavigation')
 @section('content')
 <body class="font-poppins bg-white text-gray-900">
     <div class="bg-grey-600">
