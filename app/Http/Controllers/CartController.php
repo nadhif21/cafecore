@@ -28,8 +28,8 @@ public function list()
 
 {
     // Mengambil pesanan yang statusnya pending dan selain pending
-    $pendingItems = Cart::where('status', 'pending')->get();
-    $completedItems = Cart::where('status', '!=', 'pending')->get();
+    $pendingItems = Cart::where('status', 'pending')->with('product')->get()->groupBy('order_id');
+    $completedItems = Cart::where('status', '!=', 'pending')->with('product')->get()->groupBy('order_id');
 
     return view('admin.index', compact('pendingItems', 'completedItems'));
 }
@@ -37,11 +37,18 @@ public function list()
 public function histori()
 {
     $userId = auth()->id(); // Ambil user_id dari session auth
+    
+    // Pesanan dengan status 'pending'
     $pendingItems = Cart::where('user_id', $userId)->where('status', 'pending')->get();
-    $completedItems = Cart::where('user_id', $userId)->where('status', '!=', 'pending')->get();
+    
+    // Pesanan dengan status selain 'pending' dan 'cart'
+    $completedItems = Cart::where('user_id', $userId)
+                          ->whereNotIn('status', ['pending', 'cart']) // Mengambil status selain 'pending' dan 'cart'
+                          ->get();
 
     return view('user.histori', compact('pendingItems', 'completedItems'));
 }
+
 
     public function destroy($id)
     {
@@ -82,18 +89,69 @@ public function histori()
 
     public function checkout(Request $request)
     {
+        // Generate order_id yang unik
+        $orderId = rand(100000, 999999);
+        
         // Update status semua cart items milik user menjadi 'pending'
-        $cartItems = Cart::where('user_id', auth()->id())->where('status', '!=', 'completed')->get();
+        $cartItems = Cart::where('user_id', auth()->id())->where('status', '=', 'cart')->get();
         
         foreach ($cartItems as $item) {
-            $item->update(['status' => 'pending']);
+            $item->update([
+                'status' => 'pending',
+                'order_id' => $orderId
+            ]);
         }
-
+        
         return redirect()->route('cart.index')->with('success', 'Keranjang Anda telah diproses, menunggu konfirmasi admin.');
     }
 
+    public function cancel(Request $request, $order_id)
+    {
+        $cartItems = Cart::where('user_id', auth()->id())->where('order_id', $order_id)->where('status', '=', 'pending');
+        
+        if ($cartItems->count() > 0) {
+            $cartItems->update([
+                'status' => 'canceled',
+            ]);
+            
+            return redirect()->route('user.histori')->with('success', 'Pesanan Anda telah dibatalkan.');
+        } else {
+            return redirect()->route('user.histori')->with('error', 'Pesanan tidak ditemukan!');
+        }
+    }
     // Fungsi untuk admin mengkonfirmasi pembayaran
-    public function confirmPayment($id)
+    public function confirmPayment($orderId)
+    {
+        // Pastikan user sudah login
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
+        }
+    
+        // Cek apakah user adalah admin
+        if (auth()->user()->is_admin) {
+            // Temukan semua item dalam order_id yang sama
+            $cartItems = Cart::where('order_id', $orderId)
+                             ->where('status', 'pending')  // Hanya yang status 'pending'
+                             ->get();
+    
+            // Periksa jika tidak ada pesanan yang perlu dikonfirmasi
+            if ($cartItems->isEmpty()) {
+                return redirect()->route('admin.index')->with('error', 'Tidak ada pesanan yang menunggu konfirmasi.');
+            }
+    
+            // Update status menjadi completed untuk semua item
+            foreach ($cartItems as $cartItem) {
+                $cartItem->status = 'completed';
+                $cartItem->save();  // Simpan perubahan
+            }
+    
+            return redirect()->route('admin.index')->with('success', 'Semua pesanan dengan Order ID ' . $orderId . ' berhasil dikonfirmasi.');
+        }
+    
+        return redirect()->route('admin.index')->with('error', 'Anda tidak memiliki hak akses untuk mengonfirmasi pembayaran.');
+    }
+
+    public function cancelPayment($orderId)
 {
     // Pastikan user sudah login
     if (!auth()->check()) {
@@ -102,20 +160,26 @@ public function histori()
 
     // Cek apakah user adalah admin
     if (auth()->user()->is_admin) {
-        $cartItem = Cart::findOrFail($id);
+        // Temukan semua item dalam order_id yang sama
+        $cartItems = Cart::where('order_id', $orderId)
+                         ->where('status', 'pending')  // Hanya yang status 'pending'
+                         ->get();
 
-        if ($cartItem->status === 'pending') {
-            $cartItem->status = 'completed'; // Ubah status menjadi "completed"
-            $cartItem->save(); // Simpan perubahan
-
-            return redirect()->route('admin.index')->with('success', 'Pesanan berhasil dikonfirmasi.');
+        // Periksa jika tidak ada pesanan yang perlu dibatalkan
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('admin.index')->with('error', 'Tidak ada pesanan yang dapat dibatalkan.');
         }
 
-        return redirect()->route('admin.index')->with('error', 'Status pesanan bukan pending.');
+        // Update status menjadi cancelled untuk semua item
+        foreach ($cartItems as $cartItem) {
+            $cartItem->status = 'canceled';
+            $cartItem->save();  // Simpan perubahan
+        }
+
+        return redirect()->route('admin.index')->with('success', 'Semua pesanan dengan Order ID ' . $orderId . ' berhasil dibatalkan.');
     }
 
-    return redirect()->route('admin.index')->with('error', 'Anda tidak memiliki hak akses untuk mengonfirmasi pembayaran.');
+    return redirect()->route('admin.index')->with('error', 'Anda tidak memiliki hak akses untuk membatalkan pesanan.');
 }
-
-
+    
 }

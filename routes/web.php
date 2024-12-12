@@ -44,6 +44,7 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     Route::get('/user/orders', [CartController::class, 'histori'])->name('user.histori');
+    Route::delete('/cancel/{order_id}', [CartController::class, 'cancel'])->name('user.cancel');
 });
 
 // Rute untuk admin
@@ -59,6 +60,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/products/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/admin/orders', [CartController::class, 'list'])->name('admin.index');
-    Route::post('/admin/orders/{id}/confirm', [CartController::class, 'confirmPayment'])->name('admin.orders.confirm');
+    Route::post('/admin/orders/{id}/confirm', [CartController::class,'confirmPayment'])->name('admin.orders.confirm');
+    Route::post('/admin/orders/{orderId}/cancel', [CartController::class, 'cancelPayment'])->name('admin.orders.cancel');
+    
 }); 
 

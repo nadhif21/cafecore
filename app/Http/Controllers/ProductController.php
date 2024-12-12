@@ -20,22 +20,24 @@ class ProductController extends Controller
     
         $product = Product::findOrFail($id);
     
-        // Cek apakah produk sudah ada di keranjang
+        // Cek apakah produk sudah ada di keranjang dengan order_id yang sama
         $cartItem = Cart::where('user_id', auth()->id())
                         ->where('product_id', $product->id)
+                        ->where('order_id', 0)
                         ->first();
     
         if ($cartItem) {
-            // Jika produk sudah ada, tingkatkan jumlahnya
+            // Jika produk sudah ada dengan order_id 0, tingkatkan jumlahnya
             $cartItem->quantity += $request->quantity;
             $cartItem->save();
         } else {
-            // Jika produk belum ada, tambahkan ke keranjang dengan status "cart"
+            // Jika produk belum ada atau order_id tidak sama dengan 0, tambahkan ke keranjang dengan status "cart"
             Cart::create([
                 'user_id' => auth()->id(),
                 'product_id' => $product->id,
                 'quantity' => $request->quantity,
-                'status' => 'cart', // Tambahkan status "cart"
+                'status' => 'cart',
+                'order_id' => 0, // Tambahkan order_id 0
             ]);
         }
     

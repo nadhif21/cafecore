@@ -60,16 +60,15 @@ public function login(Request $request)
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:admin,user',
         ]);
-
+    
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role' => 'user',
         ]);
-
+    
         return redirect()->route('login')->with('success', 'Account created successfully. Please login.');
     }
 }
