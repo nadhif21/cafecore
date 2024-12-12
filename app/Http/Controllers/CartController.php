@@ -4,21 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 
 class CartController extends Controller
 {
     public function index()
-{
-    $cartItems = Cart::with('product')->where('user_id', auth()->id())->get();
+    {
+        $cartItems = Cart::with('product')
+            ->where('user_id', auth()->id())
+            ->where('status', 'cart')
+            ->get();
+        
+        // Menghitung total keseluruhan
+        $total = $cartItems->sum(function ($item) {
+            return $item->product->price * $item->quantity;
+        });
     
-    // Menghitung total keseluruhan
-    $total = $cartItems->sum(function ($item) {
-        return $item->product->price * $item->quantity;
-    });
+        return view('cart.index', compact('cartItems', 'total'));
+    }
 
-    return view('cart.index', compact('cartItems', 'total'));
+public function list()
+
+{
+    // Mengambil pesanan yang statusnya pending dan selain pending
+    $pendingItems = Cart::where('status', 'pending')->get();
+    $completedItems = Cart::where('status', '!=', 'pending')->get();
+
+    return view('admin.index', compact('pendingItems', 'completedItems'));
 }
 
+public function histori()
+{
+    $userId = auth()->id(); // Ambil user_id dari session auth
+    $pendingItems = Cart::where('user_id', $userId)->where('status', 'pending')->get();
+    $completedItems = Cart::where('user_id', $userId)->where('status', '!=', 'pending')->get();
+
+    return view('user.histori', compact('pendingItems', 'completedItems'));
+}
 
     public function destroy($id)
     {
@@ -71,17 +94,28 @@ class CartController extends Controller
 
     // Fungsi untuk admin mengkonfirmasi pembayaran
     public function confirmPayment($id)
-    {
-        // Cek apakah user adalah admin (ini bisa disesuaikan dengan role atau permission)
-        if (auth()->user()->is_admin) {
-            $cartItem = Cart::findOrFail($id);
-
-            // Mengubah status menjadi 'completed'
-            $cartItem->update(['status' => 'completed']);
-
-            return redirect()->route('admin.orders.index')->with('success', 'Pembayaran telah dikonfirmasi.');
-        } else {
-            return redirect()->route('cart.index')->with('error', 'Anda tidak memiliki hak akses untuk mengonfirmasi pembayaran.');
-        }
+{
+    // Pastikan user sudah login
+    if (!auth()->check()) {
+        return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu.');
     }
+
+    // Cek apakah user adalah admin
+    if (auth()->user()->is_admin) {
+        $cartItem = Cart::findOrFail($id);
+
+        if ($cartItem->status === 'pending') {
+            $cartItem->status = 'completed'; // Ubah status menjadi "completed"
+            $cartItem->save(); // Simpan perubahan
+
+            return redirect()->route('admin.index')->with('success', 'Pesanan berhasil dikonfirmasi.');
+        }
+
+        return redirect()->route('admin.index')->with('error', 'Status pesanan bukan pending.');
+    }
+
+    return redirect()->route('admin.index')->with('error', 'Anda tidak memiliki hak akses untuk mengonfirmasi pembayaran.');
+}
+
+
 }

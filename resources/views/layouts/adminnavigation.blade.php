@@ -8,6 +8,10 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4 font-semibold">
+                <a href="{{ route('admin.index') }}" class="text-gray-700 hover:text-[#FDD100]">
+                    Confirm
+                </a>
+            <div class="flex items-center space-x-4 font-semibold">
                 <a href="{{ route('upload') }}" class="text-gray-700 hover:text-[#FDD100]">
                     Upload
                 </a>

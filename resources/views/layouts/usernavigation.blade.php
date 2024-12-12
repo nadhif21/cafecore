@@ -7,6 +7,11 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4 font-semibold">
+                <a href="{{ route('user.histori') }}" class="text-gray-700 hover:text-[#FDD100]">
+                    pesanan
+                </a>
+                <div class="rounded-sm">
+            <div class="flex items-center space-x-4 font-semibold">
                 <a href="{{ route('cart.index') }}" class="text-gray-700 hover:text-[#FDD100]">
                     Keranjang
                 </a>

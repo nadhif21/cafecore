@@ -13,34 +13,34 @@ class ProductController extends Controller
 {
 
     public function addToCart(Request $request, $id)
-{
-    $request->validate([
-        'quantity' => 'required|integer|min:1',
-    ]);
-
-    $product = Product::findOrFail($id);
-
-    // Cek apakah produk sudah ada di keranjang
-    $cartItem = Cart::where('user_id', auth()->id())
-                    ->where('product_id', $product->id)
-                    ->first();
-
-    if ($cartItem) {
-        // Jika produk sudah ada, tingkatkan jumlahnya
-        $cartItem->quantity += $request->quantity;
-        $cartItem->save();
-    } else {
-        // Jika produk belum ada, tambahkan ke keranjang
-        Cart::create([
-            'user_id' => auth()->id(),
-            'product_id' => $product->id,
-            'quantity' => $request->quantity,
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
         ]);
+    
+        $product = Product::findOrFail($id);
+    
+        // Cek apakah produk sudah ada di keranjang
+        $cartItem = Cart::where('user_id', auth()->id())
+                        ->where('product_id', $product->id)
+                        ->first();
+    
+        if ($cartItem) {
+            // Jika produk sudah ada, tingkatkan jumlahnya
+            $cartItem->quantity += $request->quantity;
+            $cartItem->save();
+        } else {
+            // Jika produk belum ada, tambahkan ke keranjang dengan status "cart"
+            Cart::create([
+                'user_id' => auth()->id(),
+                'product_id' => $product->id,
+                'quantity' => $request->quantity,
+                'status' => 'cart', // Tambahkan status "cart"
+            ]);
+        }
+    
+        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
-
-    return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
-}
-
     // Menampilkan daftar produk
     public function index()
 {

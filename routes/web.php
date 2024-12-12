@@ -43,6 +43,7 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     Route::post('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
     Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    Route::get('/user/orders', [CartController::class, 'histori'])->name('user.histori');
 });
 
 // Rute untuk admin
@@ -57,6 +58,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/products/{id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::put('/admin/products/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::get('/admin/orders', [CartController::class, 'list'])->name('admin.index');
     Route::post('/admin/orders/{id}/confirm', [CartController::class, 'confirmPayment'])->name('admin.orders.confirm');
 }); 
 
